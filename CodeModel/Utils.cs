@@ -16,8 +16,9 @@ namespace CodeModel
             {
                 name = GetModelName(name);
             }
-            if (type.IsArray)
-                name += "[]";
+
+            name += string.Concat(Enumerable.Repeat("[]", type.ArrayRank));
+
             return name;
         }
 

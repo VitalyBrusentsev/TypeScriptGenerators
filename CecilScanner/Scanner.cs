@@ -22,40 +22,66 @@ namespace CecilScanner
                 return primitiveType;
             }
 
-            if (_allEnums.Contains(codeType.FullName))
+            if (_allEnums.Contains(codeType.GetSafeFullName()))
             {
                 return new Type
                 {
-                    FullName = codeType.FullName,
+                    FullName = codeType.GetSafeFullName(),
                     IsEnum = true,
                     IsProjectDefined = true,
-                    TSElementName = codeType.FullName
+                    TSElementName = codeType.GetSafeFullName()
                 };
             }
 
-            var a = GetArrayElementType(codeType);
-            if (a != null)
+            var arrayType = GetArrayType(codeType);
+            if (arrayType != null)
             {
-                primitiveType = GetPrimitiveType(a);
-                if (primitiveType != null)
-                {
-                    primitiveType.IsArray = true;
-                    primitiveType.IsEnum = _allEnums.Contains(a.FullName);
-                    return primitiveType;
-                }
-                return new Type { FullName = a.FullName, IsArray = true, IsProjectDefined = true, TSElementName = a.FullName };
+                return arrayType;
             }
-            if (_allClasses.Contains(codeType.FullName))
+
+            if (_allClasses.Contains(codeType.GetSafeFullName()))
             {
-                return new Type { FullName = codeType.FullName, IsProjectDefined = true, TSElementName = codeType.FullName };
+                return new Type { FullName = codeType.GetSafeFullName(), IsProjectDefined = true, TSElementName = codeType.GetSafeFullName() };
             }
-            return new Type { FullName = codeType.FullName, TSElementName = "any" };
+            return new Type { FullName = codeType.GetSafeFullName(), TSElementName = "any" };
+        }
+
+        public Type GetArrayType(TypeReference type)
+        {
+            int rank = 0;
+            var elementType = GetArrayElementType(type);
+            while (elementType != null)
+            {
+                rank++;
+                type = elementType;
+                elementType = GetArrayElementType(type);
+            }
+            if (rank == 0)
+            {
+                return null;
+            }
+            Include(type);
+            var primitiveType = GetPrimitiveType(type);
+            if (primitiveType != null)
+            {
+                primitiveType.ArrayRank = rank;
+                return primitiveType;
+            }
+            var isEnum = _allEnums.Contains(type.GetSafeFullName());
+            return new Type
+            {
+                FullName = type.GetSafeFullName(),
+                ArrayRank = rank,
+                IsProjectDefined = true,
+                IsEnum = isEnum,
+                TSElementName = type.GetSafeFullName()
+            };
         }
 
         public Type GetPrimitiveType(TypeReference type)
         {
             var typeName = type.Name;
-            switch (ExtractNullableType(type).FullName)
+            switch (ExtractNullableType(type).GetSafeFullName())
             {
                 case "System.Void":
                     return new Type { FullName = typeName, IsPrimitive = true, TSElementName = "void" };
@@ -143,9 +169,9 @@ namespace CecilScanner
 
             var apiClasses = allTypes.Where(t => t.IsPublic && !t.IsAbstract && t.IsClass && IsWebAPI(t));
 
-            _allEnums = new HashSet<string>(allTypes.Where(t => t.IsPublic && t.IsEnum).Select(t => t.FullName));
+            _allEnums = new HashSet<string>(allTypes.Where(t => t.IsPublic && t.IsEnum).Select(t => t.GetSafeFullName()));
 
-            _allClasses = new HashSet<string>(allTypes.Where(t => t.IsClass).Select(t => t.FullName));
+            _allClasses = new HashSet<string>(allTypes.Where(t => t.IsClass).Select(t => t.GetSafeFullName()));
 
             foreach (var classType in apiClasses)
             {
@@ -221,7 +247,7 @@ namespace CecilScanner
                 return;
             }
 
-            if (_allEnums.Contains(t.FullName) && !enums.ContainsKey(t.FullName))
+            if (_allEnums.Contains(t.GetSafeFullName()) && !enums.ContainsKey(t.GetSafeFullName()))
             {
                 var fields = t.Resolve().Fields
                     .Where(f => f.IsLiteral && f.IsStatic && f.HasConstant)
@@ -231,9 +257,9 @@ namespace CecilScanner
                     Type = GetType(t),
                     Members = fields
                 };
-                enums[t.FullName] = theEnum;
+                enums[t.GetSafeFullName()] = theEnum;
             }
-            else if (_allClasses.Contains(t.FullName) && !_models.ContainsKey(t.FullName))
+            else if (_allClasses.Contains(t.GetSafeFullName()) && !_models.ContainsKey(t.GetSafeFullName()))
             {
                 // recursively process model types to extract all referenced models and their dependencies
                 var modelDef = new Model
@@ -241,7 +267,7 @@ namespace CecilScanner
                     Type = GetType(t),
                 };
                 var propList = new List<Member>();
-                _models[t.FullName] = modelDef;
+                _models[t.GetSafeFullName()] = modelDef;
                 var theClass = t.Resolve();
                 var members = theClass.Properties;
                 foreach (var property in members)
