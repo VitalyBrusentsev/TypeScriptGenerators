@@ -232,17 +232,21 @@ namespace CecilScanner
                     Members = fields
                 };
                 enums[t.FullName] = theEnum;
+                return;
             }
-            else if (_allClasses.Contains(t.FullName) && !_models.ContainsKey(t.FullName))
+
+            var modelDef = new Model
+            {
+                Type = GetType(t),
+            };
+
+            if (_allClasses.Contains(modelDef.Type.FullName) && !_models.ContainsKey(modelDef.Type.FullName))
             {
                 // recursively process model types to extract all referenced models and their dependencies
-                var modelDef = new Model
-                {
-                    Type = GetType(t),
-                };
+                
                 var propList = new List<Member>();
-                _models[t.FullName] = modelDef;
-                var theClass = t.Resolve();
+                _models[modelDef.Type.FullName] = modelDef;
+                var theClass = modelDef.Type.IsArray? GetArrayElementType(t).Resolve() : t.Resolve();
                 var members = theClass.Properties;
                 foreach (var property in members)
                 {
