@@ -50,7 +50,7 @@ namespace ConsoleGen
                 var areaName = Utils.GetAreaNamespace(controller.Type.FullName);
                 if (areaName == null) continue;
                 WriteLine("");
-                WriteLine("declare module {0} {{", areaName);
+                WriteLine("module {0} {{", areaName);
                 Indent(1); WriteLine("// {0}", Utils.GetAreaLocalName(controller.Type.FullName));
                 Indent(1); Write("export interface {0}", Utils.GetProxyName(controller.Type.FullName)); WriteLine(" {");
 
