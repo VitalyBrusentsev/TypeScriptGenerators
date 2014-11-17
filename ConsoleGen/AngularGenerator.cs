@@ -120,7 +120,7 @@ namespace ConsoleGen
             var areaName = Utils.GetAreaNamespace(fullName);
             if (areaName == null) return;
             WriteLine("");
-            WriteLine("declare module {0} {{", areaName);
+            WriteLine("module {0} {{", areaName);
             Indent(1); WriteLine("export interface {0} {{", Utils.GetModelName(fullName).Split('.').Last());
             var members = modelDef.Properties;
             foreach (var property in members)
