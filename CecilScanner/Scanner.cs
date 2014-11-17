@@ -60,13 +60,13 @@ namespace CecilScanner
             {
                 return null;
             }
-            Include(type);
             var primitiveType = GetPrimitiveType(type);
             if (primitiveType != null)
             {
                 primitiveType.ArrayRank = rank;
                 return primitiveType;
             }
+            Include(type);
             var isEnum = _allEnums.Contains(type.GetSafeFullName());
             return new Type
             {
@@ -247,8 +247,14 @@ namespace CecilScanner
                 return;
             }
 
-            if (_allEnums.Contains(t.GetSafeFullName()) && !enums.ContainsKey(t.GetSafeFullName()))
+            var fullName = t.GetSafeFullName();
+
+            if (_allEnums.Contains(fullName))
             {
+                if (enums.ContainsKey(fullName))
+                {
+                    return;
+                }
                 var fields = t.Resolve().Fields
                     .Where(f => f.IsLiteral && f.IsStatic && f.HasConstant)
                     .Select(f => new EnumMember { Name = f.Name, Value = f.Constant.ToString() });
@@ -257,9 +263,9 @@ namespace CecilScanner
                     Type = GetType(t),
                     Members = fields
                 };
-                enums[t.GetSafeFullName()] = theEnum;
+                enums[fullName] = theEnum;
             }
-            else if (_allClasses.Contains(t.GetSafeFullName()) && !_models.ContainsKey(t.GetSafeFullName()))
+            else if (_allClasses.Contains(fullName) && !_models.ContainsKey(fullName))
             {
                 // recursively process model types to extract all referenced models and their dependencies
                 var modelDef = new Model
@@ -267,7 +273,7 @@ namespace CecilScanner
                     Type = GetType(t),
                 };
                 var propList = new List<Member>();
-                _models[t.GetSafeFullName()] = modelDef;
+                _models[fullName] = modelDef;
                 var theClass = t.Resolve();
                 var members = theClass.Properties;
                 foreach (var property in members)
