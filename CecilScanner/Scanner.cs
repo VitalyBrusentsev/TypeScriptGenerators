@@ -39,11 +39,52 @@ namespace CecilScanner
                 return arrayType;
             }
 
+            var taskType = GetTaskType(codeType);
+            if (taskType != null)
+            {
+                return taskType;
+            }
+
             if (_allClasses.Contains(codeType.GetSafeFullName()))
             {
                 return new Type { FullName = codeType.GetSafeFullName(), IsProjectDefined = true, TSElementName = codeType.GetSafeFullName() };
             }
             return new Type { FullName = codeType.GetSafeFullName(), TSElementName = "any" };
+        }
+
+        public Type GetTaskType(TypeReference type)
+        {
+            var elementType = GetTaskElementType(type);
+
+            if (elementType == null)
+            {
+                return null;
+            }
+
+            var primitiveType = GetType(elementType);
+            if (primitiveType == null)
+            {
+                return null;
+            }
+
+            Include(elementType);
+            return primitiveType;
+        }
+
+        public TypeReference GetTaskElementType(TypeReference type)
+        {
+            var genericType = type as GenericInstanceType;
+            if (genericType == null)
+            {
+                return null;
+            }
+
+            if (type.Name == "Task`1")
+            {
+                return genericType.GenericArguments.First();
+            }
+
+            return null;
         }
 
         public Type GetArrayType(TypeReference type)
