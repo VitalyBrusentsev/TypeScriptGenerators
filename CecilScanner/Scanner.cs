@@ -13,7 +13,7 @@ namespace CecilScanner
         private Dictionary<string, Model> _models = new Dictionary<string, Model>();
         private Dictionary<string, Enum> enums = new Dictionary<string, Enum>();
 
-        public Type GetType(TypeReference codeType)
+        private Type GetType(TypeReference codeType)
         {
             var name = codeType.Name;
             var primitiveType = GetPrimitiveType(codeType);
@@ -52,7 +52,7 @@ namespace CecilScanner
             return new Type { FullName = codeType.GetSafeFullName(), TSElementName = "any" };
         }
 
-        public Type GetTaskType(TypeReference type)
+        private Type GetTaskType(TypeReference type)
         {
             var elementType = GetTaskElementType(type);
 
@@ -71,7 +71,7 @@ namespace CecilScanner
             return primitiveType;
         }
 
-        public TypeReference GetTaskElementType(TypeReference type)
+        private TypeReference GetTaskElementType(TypeReference type)
         {
             var genericType = type as GenericInstanceType;
             if (genericType == null)
@@ -87,7 +87,7 @@ namespace CecilScanner
             return null;
         }
 
-        public Type GetArrayType(TypeReference type)
+        private Type GetArrayType(TypeReference type)
         {
             int rank = 0;
             var elementType = GetArrayElementType(type);
@@ -119,7 +119,7 @@ namespace CecilScanner
             };
         }
 
-        public Type GetPrimitiveType(TypeReference type)
+        private Type GetPrimitiveType(TypeReference type)
         {
             var typeName = type.Name;
             switch (ExtractNullableType(type).GetSafeFullName())
@@ -150,7 +150,7 @@ namespace CecilScanner
             return null;
         }
 
-        TypeReference ExtractNullableType(TypeReference type)
+        private TypeReference ExtractNullableType(TypeReference type)
         {
             if (type.Name == "Nullable`1")
             {
@@ -160,7 +160,7 @@ namespace CecilScanner
             return type;
         }
 
-        public TypeReference GetArrayElementType(TypeReference type)
+        private TypeReference GetArrayElementType(TypeReference type)
         {
             // Check if array
             if (type.IsArray)
@@ -349,7 +349,7 @@ namespace CecilScanner
             return test;
         }
 
-        void ValidateMethod(Method method)
+        private void ValidateMethod(Method method)
         {
             method.IsValid = false;
             if (method.HttpVerb == "GET" && method.Parameters.Any(p => p.FromBody))
