@@ -175,6 +175,12 @@ namespace CecilScanner
                 return null;
             }
 
+            // Dictionaries become 'any'
+            if (type.Name == "IDictionary`2" || type.Resolve().Interfaces.Any(i => i.Name == "IDictionary`2"))
+            {
+                return null;
+            }
+
             if (type.Name == "IEnumerable`1" || type.Resolve().Interfaces.Any(i => i.Name == "IEnumerable`1"))
             {
                 return genericType.GenericArguments.First();
