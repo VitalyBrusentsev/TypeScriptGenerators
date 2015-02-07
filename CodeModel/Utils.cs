@@ -17,7 +17,7 @@ namespace CodeModel
                 name = GetModelName(name);
             }
 
-            name += string.Concat(Enumerable.Repeat("[]", type.ArrayRank));
+            name += string.Concat(Enumerable.Repeat("[]", type.ArrayDimensions));
 
             return name;
         }
