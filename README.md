@@ -1,5 +1,3 @@
-## TypeScriptGenerators
-
 ### What is this project about?
 This project is intended to provide AngularJS/TypeScript definitions from 
 ASP.NET MVC/WebAPI server endpoints. Think of [DefinitelyTyped](https://github.com/borisyankov/DefinitelyTyped), 
