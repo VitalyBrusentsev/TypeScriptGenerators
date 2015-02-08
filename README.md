@@ -102,6 +102,7 @@ will be generated as TypeScript enums.
 
 ### Command Line
 To run the generator, run ConsoleGen.exe with the following parameters:
+
 `ConsoleGen assembly1.dll [..assemblyN.dll] OutputFile.ts`
 
 The idea is that you specify any (but at least one) number of .NET assemblies to scan, 
