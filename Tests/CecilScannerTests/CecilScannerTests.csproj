@@ -61,11 +61,11 @@
       <Project>{f94c4163-5e41-4846-92d7-9e4b3afb8324}</Project>
       <Name>BaseLibrary</Name>
     </ProjectReference>
-    <ProjectReference Include="..\CecilScanner\CecilScanner.csproj">
+    <ProjectReference Include="..\..\CecilScanner\CecilScanner.csproj">
       <Project>{214f96b5-5d01-41a2-b2d0-1fc2858eeab5}</Project>
       <Name>CecilScanner</Name>
     </ProjectReference>
-    <ProjectReference Include="..\CodeModel\CodeModel.csproj">
+    <ProjectReference Include="..\..\CodeModel\CodeModel.csproj">
       <Project>{6651dc0e-ef1b-4591-9e75-71a9aaf9ecbc}</Project>
       <Name>CodeModel</Name>
     </ProjectReference>
