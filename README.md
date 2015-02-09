@@ -1,6 +1,6 @@
 ### What is this project about?
-This project is intended to provide AngularJS/TypeScript definitions from 
-ASP.NET MVC/WebAPI server endpoints. Think of [DefinitelyTyped](https://github.com/borisyankov/DefinitelyTyped), 
+This project is intended to make a versatile generator for making AngularJS/TypeScript definitions from 
+ASP.NET WebAPI server endpoints. Think of [DefinitelyTyped](https://github.com/borisyankov/DefinitelyTyped), 
 but for your server API.
 
 ### How should I use it?
@@ -10,7 +10,7 @@ Build the project and use ConsoleGen.exe to scan your .NET assemblies and create
 The current generator version is AngularJS-specific, but there are plans to provide 
 jQuery-flavoured definitions that would work with `$.ajax` calls instead of the `$http` Angular service.
 If you want to use it with another favourite JavaScript UI framework, 
-you just need to create a generator class that would  adopt the TypeScript sources to your needs.
+you just need to create a generator class that would  adopt TypeScript generation to your needs.
 Use existing [AngularGenerator]
 (https://github.com/VitalyBrusentsev/TypeScriptGenerators/blob/master/ConsoleGen/AngularGenerator.cs) as an inspiration.
 
@@ -18,11 +18,11 @@ Use existing [AngularGenerator]
 The following .NET code components can be translated into TypeScript definitions:
 
 #### Controllers
-Most of MVC/WebAPI controllers created for AngularJS consumption 
+Most of WebAPI controllers created for AngularJS consumption 
 can be represented in TypeScript.
-The following WebAPI controller written in .NET
+The following controller written in .NET
 ```csharp
-namespace ShoppingApp.Api.Controllers
+namespace ShoppingApp.Api
 {
   public class OrderController : ApiController
   {
@@ -41,29 +41,32 @@ namespace ShoppingApp.Api.Controllers
 ```
 Will become the following TypeScript definition:
 ```typescript
-module ShoppingApp.Api.Controllers {
+module ShoppingApp.Api {
   export interface IOrderService {
     Get(id: number): ng.IHttpPromise<ShoppingApp.Contracts.IOrderModel>;
     Post(order: ShoppingApp.Contracts.IOrderModel): ng.IHttpPromise<number>;
   }
 }
 ```
-As you can see, the naming conventions follow AngularJS concepts: 
-a "controller" becomes an AngularJS "service" used for interaction with the server.
-The returned types are wrapped in AngularJS promises.
+As you can see, the code follows AngularJS concepts: 
+- A "controller" becomes an AngularJS "service" used for interaction with the server,
+- The returned types are wrapped in AngularJS promises.
+ 
+The generated models become TypeScript interfaces, allowing you to strongly type the API consumption code.
 
-*Note*: There is currently no service implementation generated, it is considered to be implemented in a future release.
+*Note*: There is currently no service implementation generated, it is considered to be implemented in a future release. The main concern here is support for various routing schemes.
 
 #### Models (or POCOs)
 The models used as parameters or return types of WebAPI controllers are generated into TypeScript interfaces. Supported property types include:
 - Numeric types (integral types, floating point types and decimals)
-- Bool
+- Boolean
 - String
 - DateTime (becomes `string` in TypeScript)
-- Other POCO models defined in the same project
+- Other POCO models defined in the scanned assemblies
+- .NET Enums defined in the scanned assemblies
 - Arrays/Enumerables/Lists of the above.
 
-If the generator cannot handle something, it will declare a property of type `any`.
+If the generator cannot handle something unusual, it will declare a property of type `any`.
 
 C# model example:
 ```csharp
@@ -82,17 +85,17 @@ namespace ShoppingApp.Contracts
 ```
 The generated TypeScript model:
 ```typescript
-module ShoppingApp.Contracts{
-  export interface IOrderModel{
+module ShoppingApp.Contracts {
+  export interface IOrderModel {
     Id: number;
     Date: string;
-    Details: ShoppingApp.Contract.IOrderDetail[];
+    Details: ShoppingApp.Contracts.IOrderDetail[];
     Tags: string[];
     UnrelatedProperty: any;
   }
 }
 ```
-The IOrderDetails interface will also be generated, provided it was implemented in the scanned assemblies.
+The IOrderDetails interface will also be generated, provided it was implemented in the scanned assemblies. Otherwise the type of `Details` property will be `any`.
 
 #### Enumerations
 The .NET enums referenced in your controllers (or models referenced in your controllers) 
