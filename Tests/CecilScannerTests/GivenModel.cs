@@ -1,21 +1,21 @@
 ﻿using BaseLibrary.TestClasses.Models;
 using CecilScanner;
 using CodeModel;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NUnit.Framework;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 
 namespace CecilScannerTests
 {
-    [TestClass]
+    [TestFixture]
     public class GivenModel
     {
         private CodeModel.Api _api = null;
         private Model _employeeType = null;
         private IDictionary<string, Member> _properties = null;
 
-        [TestInitialize]
+        [TestFixtureSetUp]
         public void Initialize()
         {
             var _scanner = new Scanner();
@@ -32,21 +32,21 @@ namespace CecilScannerTests
             Assert.AreEqual(arrayDimensions, propertyType.ArrayDimensions);
         }
 
-        [TestMethod]
+        [Test]
         public void When_base_model_is_not_referenced_Then_it_is_not_included()
         {
             Assert.IsFalse(_api.Models.Any(m => m.Type.FullName == "BaseLibrary.TestClasses.Models.BaseEntity"));
         }
         
 
-        [TestMethod]
+        [Test]
         public void When_subclassed_Then_inherited_properties_should_be_included()
         {
             Assert.AreEqual(12, _properties.Count());
             AssertTypeDimensions("Id", "number", 0);
         }
 
-        [TestMethod]
+        [Test]
         public void When_property_types_are_primitives_Then_generated_types_are_supported()
         {
             AssertTypeDimensions("Name", "string", 0);
@@ -55,13 +55,13 @@ namespace CecilScannerTests
             AssertTypeDimensions("UnrelatedProperty", "any", 0);
         }
 
-        [TestMethod]
+        [Test]
         public void When_property_type_is_datetime_Then_generated_type_is_string()
         {
             AssertTypeDimensions("Birthday", "string", 0);
         }
 
-        [TestMethod]
+        [Test]
         public void When_property_types_are_arrays_Then_generated_types_are_arrays()
         {
             Assert.IsTrue(_properties["Ratings"].Type.IsEnum);
@@ -70,13 +70,13 @@ namespace CecilScannerTests
             AssertTypeDimensions("PastEventPeriods", "string", 2);
         }
 
-        [TestMethod]
+        [Test]
         public void When_property_type_is_dictionary_Then_generated_type_is_any()
         {
             AssertTypeDimensions("DictionaryProperty", "any", 0);
         }
 
-        [TestMethod]
+        [Test]
         public void When_property_type_is_dictionary_array_Then_generated_type_is_any_array()
         {
             var t = _properties["ArrayOfDictionaries"].Type;
