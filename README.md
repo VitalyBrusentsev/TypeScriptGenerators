@@ -1,3 +1,4 @@
+[![Build Status](https://travis-ci.org/VitalyBrusentsev/TypeScriptGenerators.svg?branch=master)](https://travis-ci.org/VitalyBrusentsev/TypeScriptGenerators)
 ### What is this project about?
 This project is intended to make a versatile generator for making AngularJS/TypeScript definitions from 
 ASP.NET WebAPI server endpoints. Think of [DefinitelyTyped](https://github.com/borisyankov/DefinitelyTyped), 
