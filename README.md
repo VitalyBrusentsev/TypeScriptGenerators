@@ -102,6 +102,16 @@ The IOrderDetails interface will also be generated, provided it was implemented 
 The .NET enums referenced in your controllers (or models referenced in your controllers) 
 will be generated as TypeScript enums.
 
+### Adding unreferenced types
+If you have some types that you need mapped in TypeScript beyond what is exposed through WebAPI, you can mark such types with a `[TypeScriptInclude]` attribute. Your application will need to define such an attribute. 
+Here is a C# example:
+```csharp
+[AttributeUsage(AttributeTargets.Class | AttributeTargets.Enum)]
+public class TypeScriptIncludeAttribute: Attribute
+{
+}
+```
+
 ### Command Line
 To run the generator, run ConsoleGen.exe with the following parameters:
 
