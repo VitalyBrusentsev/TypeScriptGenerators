@@ -63,8 +63,10 @@
     <Otherwise />
   </Choose>
   <ItemGroup>
+    <Compile Include="GivenApi.cs" />
     <Compile Include="TestClasses\Controllers\Controller.cs" />
     <Compile Include="TestClasses\Controllers\EmployeeController.cs" />
+    <Compile Include="TestClasses\Enums\Seasons.cs" />
     <Compile Include="TestClasses\Models\Employee.cs" />
     <Compile Include="GivenModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -83,9 +85,7 @@
       <Name>CodeModel</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="TestClasses\Enums\" />
-  </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>

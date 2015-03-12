@@ -230,68 +230,25 @@ namespace CecilScanner
 
             var allTypes = assemblies.SelectMany(asm => asm.MainModule.GetTypes()).ToList();
 
-            var apiClasses = allTypes.Where(t => t.IsPublic && !t.IsAbstract && t.IsClass && t.IsWebAPI());
+            var apiControllers = allTypes.Where(t => t.IsPublic && !t.IsAbstract && t.IsClass && t.IsWebAPI());
 
             _allEnums = new HashSet<string>(allTypes.Where(t => t.IsPublic && t.IsEnum).Select(t => t.GetSafeFullName()));
 
             _allClasses = new HashSet<string>(allTypes.Where(t => t.IsClass).Select(t => t.GetSafeFullName()));
 
-            foreach (var classType in apiClasses)
+            IncludeMarkedTypes(allTypes);
+
+            foreach (var classType in apiControllers)
             {
                 var typeDef = GetType(classType);
                 var areaName = Utils.GetAreaNamespace(typeDef.FullName);
                 if (areaName == null) continue;
-                var methods = new List<Method>();
                 var controller = new Controller
                 {
                     Type = typeDef,
-                    Methods = methods
+                    Methods = ConvertMethods(classType)
                 };
 
-                foreach (var member in classType.Methods.Where(m => m.IsPublic && !m.IsConstructor))
-                {
-                    var resultType = GetType(member.ReturnType);
-                    var parameters = new List<Parameter>();
-                    var attributes = new List<Attribute>();
-                    var method = new Method
-                    {
-                        OriginalName = member.Name,
-                        Name = RenameIfConflicts(methods, member.Name),
-                        HttpVerb = Utils.GetHttpVerb(member.Name),
-                        Type = resultType,
-                        Parameters = parameters,
-                        Attributes = attributes
-                    };
-
-                    foreach (var p in member.Parameters)
-                    {
-                        var paramType = GetType(p.ParameterType);
-                        var param = new Parameter
-                        {
-                            Name = p.Name,
-                            Type = paramType,
-                            FromBody = p.CustomAttributes.Any(a => a.AttributeType.Name == "FromBodyAttribute")
-                        };
-                        parameters.Add(param);
-                    }
-
-                    foreach (var attr in member.CustomAttributes)
-                    {
-                        //attributes.Add(new AttributeDefinition { Name = attr.Name, Value = attr.Value.ToString() });
-                    }
-                    ValidateMethod(method);
-                    methods.Add(method);
-
-                    // pull the data types along with the generated methods
-                    if (method.IsValid)
-                    {
-                        Include(member.ReturnType);
-                        foreach (var param in member.Parameters)
-                        {
-                            Include(param.ParameterType);
-                        }
-                    }
-                }
                 _includedControllers.Add(controller);
             }
 
@@ -301,6 +258,68 @@ namespace CecilScanner
                 Models = _includedModels.Values,
                 Enums = _includedEnums.Values
             };
+        }
+
+        private void IncludeMarkedTypes(List<TypeDefinition> allTypes)
+        {
+            allTypes
+                .Where(t => t.IsPublic
+                    && !t.IsAbstract
+                    && t.CustomAttributes.Any(a => a.AttributeType.Name == "TypeScriptIncludeAttribute"))
+                .ToList()
+                .ForEach(Include);
+        }
+
+        private List<Method> ConvertMethods(TypeDefinition classType)
+        {
+            var methods = new List<Method>();
+            foreach (var member in classType.Methods.Where(m => m.IsPublic && !m.IsConstructor))
+            {
+                var resultType = GetType(member.ReturnType);
+                var attributes = new List<Attribute>();
+                var method = new Method
+                {
+                    OriginalName = member.Name,
+                    Name = RenameIfConflicts(methods, member.Name),
+                    HttpVerb = Utils.GetHttpVerb(member.Name),
+                    Type = resultType,
+                    Parameters = ConvertParameters(member).ToList(),
+                    Attributes = attributes
+                };
+
+                foreach (var attr in member.CustomAttributes)
+                {
+                    //attributes.Add(new AttributeDefinition { Name = attr.Name, Value = attr.Value.ToString() });
+                }
+                ValidateMethod(method);
+                methods.Add(method);
+
+                // pull the data types along with the generated methods
+                if (method.IsValid)
+                {
+                    Include(member.ReturnType);
+                    foreach (var param in member.Parameters)
+                    {
+                        Include(param.ParameterType);
+                    }
+                }
+            }
+            return methods;
+        }
+
+        private IEnumerable<Parameter> ConvertParameters(MethodDefinition member)
+        {
+            foreach (var p in member.Parameters)
+            {
+                var paramType = GetType(p.ParameterType);
+                var param = new Parameter
+                {
+                    Name = p.Name,
+                    Type = paramType,
+                    FromBody = p.CustomAttributes.Any(a => a.AttributeType.Name == "FromBodyAttribute")
+                };
+                yield return param;
+            }
         }
 
         private void Include(TypeReference t)

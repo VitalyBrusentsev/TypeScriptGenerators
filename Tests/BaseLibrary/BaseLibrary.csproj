@@ -35,8 +35,10 @@
   <ItemGroup>
     <Compile Include="TestClasses\Enums\Colors.cs" />
     <Compile Include="TestClasses\Enums\Rating.cs" />
+    <Compile Include="TestClasses\Enums\TestEnum.cs" />
     <Compile Include="TestClasses\Models\BaseEntity.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="TypeScriptIncludeAttribute.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

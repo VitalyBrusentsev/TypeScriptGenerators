@@ -33,13 +33,6 @@ namespace CecilScannerTests
         }
 
         [Test]
-        public void When_base_model_is_not_referenced_Then_it_is_not_included()
-        {
-            Assert.IsFalse(_api.Models.Any(m => m.Type.FullName == "BaseLibrary.TestClasses.Models.BaseEntity"));
-        }
-        
-
-        [Test]
         public void When_subclassed_Then_inherited_properties_should_be_included()
         {
             Assert.AreEqual(12, _properties.Count());
