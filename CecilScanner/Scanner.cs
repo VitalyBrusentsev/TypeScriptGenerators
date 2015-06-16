@@ -162,6 +162,7 @@ namespace CecilScanner
                     return Types.Boolean;
 
                 case "System.String":
+                case "System.Guid":
                     return Types.String;
 
                 case "System.DateTime":
