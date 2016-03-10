@@ -90,8 +90,8 @@ namespace ConsoleGen
             var areaName = Utils.GetAreaNamespace(fullName);
             if (areaName == null) return;
             WriteLine("");
-            WriteLine("module {0} {{", areaName);
-            Indent(1); WriteLine("export enum {0} {{", fullName.Split('.').Last());
+            WriteLine("declare module {0} {{", areaName);
+            Indent(1); WriteLine("export const enum {0} {{", fullName.Split('.').Last());
             foreach (var member in enumDef.Members)
             {
                 // render name and value (optional)
